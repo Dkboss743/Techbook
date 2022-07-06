@@ -1,4 +1,5 @@
 import Layout from "../components/Layout";
+import axios from "axios";
 import { useReducer } from "react";
 const initialState = {
   name: "",
@@ -49,6 +50,19 @@ const Register = () => {
   };
   const formSubmitHandler = (e) => {
     e.preventDefault();
+    const name = state.name;
+    const email = state.email;
+    const password = state.password;
+    axios
+      .post(`http://localhost:8000/api/register`, {
+        name,
+        email,
+        password,
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => console.log(error));
   };
   const registerForm = () => {
     return (
@@ -95,7 +109,7 @@ const Register = () => {
         <br />
         {registerForm()}
       </div>
-      {/* {JSON.stringify(state)} */}
+      {JSON.stringify(state)}
     </Layout>
   );
 };
