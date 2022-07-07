@@ -7,7 +7,12 @@ require("dotenv").config();
 const authRoutes = require("./routes/auth");
 const app = express();
 
-//app middlewares
+//db
+mongoose
+  .connect(process.env.DATABASE_CLOUD)
+  .then(() => console.log("DB connected"))
+  .catch((error) => console.log(error));
+//app middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cors({ origin: process.env.CLIENT_URL }));
