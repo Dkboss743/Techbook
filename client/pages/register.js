@@ -4,7 +4,6 @@ import { useReducer } from "react";
 import { showErrorMessage, showSuccessMessage } from "../helpers/alerts";
 import { reducer } from "../store/Authentication";
 import { API } from "../config";
-console.log(API);
 
 const initialState = {
   name: "",

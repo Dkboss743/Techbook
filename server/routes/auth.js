@@ -10,4 +10,5 @@ router.post(
   runValidation,
   authController.register
 );
+router.post("/register/activate", authController.registerActivate);
 module.exports = router;
