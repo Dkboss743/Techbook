@@ -3,6 +3,9 @@ import axios from "axios";
 import { useReducer } from "react";
 import { showErrorMessage, showSuccessMessage } from "../helpers/alerts";
 import { reducer } from "../store/Authentication";
+import { API } from "../config";
+console.log(API);
+
 const initialState = {
   name: "",
   email: "",
@@ -14,13 +17,7 @@ const initialState = {
 
 const Register = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const handleChange = (name) => (e) => {
-    dispatch({
-      type: name,
-      payload: e.target.value,
-    });
-  };
-  const formSubmitHandler = (e) => {
+  const formSubmitHandler = async (e) => {
     e.preventDefault();
     dispatch({
       type: "registering",
@@ -28,25 +25,29 @@ const Register = () => {
     const name = state.name;
     const email = state.email;
     const password = state.password;
-    axios
-      .post(`http://localhost:8000/api/register`, {
+
+    try {
+      const response = await axios.post(`${API}/register`, {
         name,
         email,
         password,
-      })
-      .then((response) => {
-        dispatch({
-          type: "reset",
-          payload: response.data.message,
-        });
-      })
-      .catch((error) => {
-        console.log(error.response.data);
-        dispatch({
-          type: "error",
-          payload: error.response.data.error,
-        });
       });
+      dispatch({
+        type: "reset",
+        payload: response.data.message,
+      });
+    } catch (error) {
+      dispatch({
+        type: "error",
+        payload: error.response.data.error,
+      });
+    }
+  };
+  const handleChange = (name) => (e) => {
+    dispatch({
+      type: name,
+      payload: e.target.value,
+    });
   };
   const registerForm = () => {
     return (
@@ -54,6 +55,7 @@ const Register = () => {
         <div className="form-group">
           <input
             value={state.name}
+            required
             onChange={handleChange("name")}
             type="text"
             className="form-control"
@@ -62,6 +64,7 @@ const Register = () => {
         </div>
         <div className="form-group">
           <input
+            required
             value={state.email}
             onChange={handleChange("email")}
             type="email"
@@ -71,6 +74,7 @@ const Register = () => {
         </div>
         <div className="form-group">
           <input
+            required
             value={state.password}
             onChange={handleChange("password")}
             type="password"
