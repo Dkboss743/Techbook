@@ -1,6 +1,8 @@
 import Layout from "../components/Layout";
 import axios from "axios";
 import { useReducer } from "react";
+import { showErrorMessage, showSuccessMessage } from "../helpers/alerts";
+import { reducer } from "../store/Authentication";
 const initialState = {
   name: "",
   email: "",
@@ -9,39 +11,9 @@ const initialState = {
   success: "",
   buttonText: "Registor",
 };
-const reducer = (state, action) => {
-  if (action.type === "name") {
-    return {
-      ...state,
-      name: action.payload,
-      error: "",
-      success: "",
-    };
-  }
-  if (action.type === "email") {
-    return {
-      ...state,
-      email: action.payload,
-      error: "",
-      success: "",
-    };
-  }
-  if (action.type === "password") {
-    return {
-      ...state,
-      password: action.payload,
-      error: "",
-      success: "",
-    };
-  }
-  return {
-    ...state,
-  };
-};
 
 const Register = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
   const handleChange = (name) => (e) => {
     dispatch({
       type: name,
@@ -50,6 +22,9 @@ const Register = () => {
   };
   const formSubmitHandler = (e) => {
     e.preventDefault();
+    dispatch({
+      type: "registering",
+    });
     const name = state.name;
     const email = state.email;
     const password = state.password;
@@ -60,9 +35,18 @@ const Register = () => {
         password,
       })
       .then((response) => {
-        console.log(response);
+        dispatch({
+          type: "reset",
+          payload: response.data.message,
+        });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error.response.data);
+        dispatch({
+          type: "error",
+          payload: error.response.data.error,
+        });
+      });
   };
   const registerForm = () => {
     return (
@@ -71,7 +55,7 @@ const Register = () => {
           <input
             value={state.name}
             onChange={handleChange("name")}
-            tpe="text"
+            type="text"
             className="form-control"
             placeholder="Type you name"
           ></input>
@@ -80,7 +64,7 @@ const Register = () => {
           <input
             value={state.email}
             onChange={handleChange("email")}
-            tpe="email"
+            type="email"
             className="form-control"
             placeholder="Type you email"
           ></input>
@@ -89,7 +73,7 @@ const Register = () => {
           <input
             value={state.password}
             onChange={handleChange("password")}
-            tpe="password"
+            type="password"
             className="form-control"
             placeholder="Type you password"
           ></input>
@@ -107,9 +91,10 @@ const Register = () => {
       <div className="col-md-6 offset-md-3">
         <h1>Register</h1>
         <br />
+        {state.success && showSuccessMessage(state.success)}
+        {state.error && showErrorMessage(state.error)}
         {registerForm()}
       </div>
-      {JSON.stringify(state)}
     </Layout>
   );
 };
