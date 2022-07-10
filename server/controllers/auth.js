@@ -17,7 +17,6 @@ const ses = new AWS.SES({
 exports.register = (req, res) => {
   const { name, email, password } = req.body;
 
-  //check if user exist
   User.findOne({
     email,
   }).exec((err, user) => {
@@ -100,4 +99,37 @@ exports.registerActivate = (req, res) => {
       });
     }
   );
+};
+exports.login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({
+    email,
+  }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: "User with that email does not exist, Please register",
+      });
+    }
+
+    if (!user.authenticate(password)) {
+      res.status(401).json({
+        error: "Email and password do not match",
+      });
+    }
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+    const { _id, name, role } = user;
+
+    return res.status(200).json({
+      token,
+      user: { _id, name, email, role },
+    });
+  });
 };
